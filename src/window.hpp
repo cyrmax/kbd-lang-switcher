@@ -11,6 +11,9 @@ class EventFrame : public wxFrame {
     EventFrame();
     ~EventFrame();
 
+    // protected:
+    // WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam) override;
+
   private:
     std::unique_ptr<KeyboardManager> m_keyboardManager;
     std::map<int, HKL> m_hotkeyIDToHKLMap;

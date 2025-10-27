@@ -69,6 +69,6 @@ void EventFrame::OnHotkey(wxKeyEvent& event) {
     int hotkeyId = event.GetId();
     auto it = m_hotkeyIDToHKLMap.find(hotkeyId);
     if (it != m_hotkeyIDToHKLMap.end()) {
-        m_keyboardManager.get()->setKeyboardLayout(this->GetHandle(), it->second);
+        m_keyboardManager.get()->setKeyboardLayout(GetForegroundWindow(), it->second);
     }
 }
