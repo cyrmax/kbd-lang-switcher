@@ -15,8 +15,8 @@ wxMenu* MainTaskbarIcon::CreatePopupMenu() {
                                .transform([](const std::vector<KeyboardLayoutInfo>& layouts) {
                                    auto* submenu = new wxMenu;
                                    if (layouts.empty()) {
+                                       LOG_WARN("Layouts collection is empty. Returning stub.");
                                        submenu->Append(wxID_ANY, "No layouts available");
-                                       //    submenu->Enable(wxID_ANY, false);
                                    } else {
                                        for (const auto& layout : layouts) {
                                            submenu->Append(wxID_ANY, wxString(layout.languageName));
@@ -28,7 +28,6 @@ wxMenu* MainTaskbarIcon::CreatePopupMenu() {
                                    LOG_WARN("Unable to get keyboard layouts");
                                    auto* submenu = new wxMenu;
                                    submenu->Append(wxID_ANY, "No layouts available");
-                                   //    submenu->Enable(wxID_ANY, false);
                                    return submenu;
                                })
                                .value_or(nullptr);
