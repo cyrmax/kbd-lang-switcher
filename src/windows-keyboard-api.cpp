@@ -11,6 +11,9 @@
 #include <vector>
 #pragma comment(lib, "shlwapi.lib")
 
+static constexpr int INPUT_LANG_CHANGE_REQUEST = 0x0050;
+static constexpr int INPUT_LANG_CHANGE_FORWARD = 0x0002;
+
 std::optional<std::vector<KeyboardLayoutInfo>> KeyboardManager::getKeyboardLayouts() const {
     LOG_TRACE_CALLED();
     std::vector<HKL> layoutsBuffer;
@@ -75,4 +78,9 @@ std::optional<std::wstring> KeyboardManager::getKeyboardLayoutName(HKL hkl) cons
         return layoutDisplayName;
     }
     return std::nullopt;
+}
+
+bool KeyboardManager::setKeyboardLayout(HWND hwnd, HKL hkl) const {
+    SendMessageA(hwnd, WM_INPUTLANGCHANGEREQUEST, 0x0002, (LPARAM)hkl);
+    return true;
 }

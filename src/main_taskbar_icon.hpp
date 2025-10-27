@@ -1,7 +1,9 @@
 #pragma once
 
+#include "windows-keyboard-api.hpp"
+
+#include <map>
 #include <memory>
-#include <windows-keyboard-api.hpp>
 #include <wx/taskbar.h>
 
 class MainTaskbarIcon : public wxTaskBarIcon {
