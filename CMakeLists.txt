@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 project("kbd-lang-switcher" VERSION 0.1)
 
 if(NOT WIN32)
-message(FATAL "${PROJECT_NAME} is only for Windows")
+  message(FATAL "${PROJECT_NAME} is only for Windows")
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -17,8 +17,8 @@ endif()
 file(GLOB SOURCES "src/*.cpp")
 
 add_executable(${PROJECT_NAME}
-"${CMAKE_SOURCE_DIR}/assets/resources.rc"
-${SOURCES}
+  "${CMAKE_SOURCE_DIR}/assets/resources.rc"
+  ${SOURCES}
 )
 
 if(WIN32)
@@ -52,7 +52,7 @@ FetchContent_MakeAvailable(SRAL)
 add_library(SRAL::SRAL_static ALIAS SRAL_static)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-"${CMAKE_CURRENT_SOURCE_DIR}/src"
+  "${CMAKE_CURRENT_SOURCE_DIR}/src"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -63,10 +63,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 target_precompile_headers(${PROJECT_NAME} PRIVATE
-<windows.h>
-<spdlog/spdlog.h>
-<wx/wxprec.h>
-<wx/app.h>
+  <windows.h>
+  <spdlog/spdlog.h>
+  <wx/wxprec.h>
+  <wx/app.h>
 )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin CONFIGURATIONS release)
@@ -79,8 +79,8 @@ set(CPACK_NSIS_INSTALLED_ICON_NAME "${CMAKE_SOURCE_DIR}/assets/icon.ico")
 set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/assets/icon.ico")
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/assets/nsis ${CMAKE_MODULE_PATH})
 
-    include(CPack)
-    configure_file(
-    ${PROJECT_SOURCE_DIR}/assets/nsis/NSIS.definitions.nsh.in
-    ${CMAKE_CURRENT_BINARY_DIR}/assets/nsis/NSIS.definitions.nsh
-    )
+include(CPack)
+configure_file(
+  ${PROJECT_SOURCE_DIR}/assets/nsis/NSIS.definitions.nsh.in
+  ${CMAKE_CURRENT_BINARY_DIR}/assets/nsis/NSIS.definitions.nsh
+)
