@@ -16,7 +16,10 @@ endif()
 
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+add_executable(${PROJECT_NAME}
+"${CMAKE_SOURCE_DIR}/assets/resources.rc"
+${SOURCES}
+)
 
 if(WIN32)
   set_target_properties(${PROJECT_NAME} PROPERTIES WIN32_EXECUTABLE TRUE)
@@ -65,3 +68,19 @@ target_precompile_headers(${PROJECT_NAME} PRIVATE
 <wx/wxprec.h>
 <wx/app.h>
 )
+
+install(TARGETS ${PROJECT_NAME} DESTINATION bin CONFIGURATIONS release)
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_GENERATOR "NSIS")
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME}-installer)
+set(CPACK_PACKAGE_VENDOR "Cyrmax")
+set(CPACK_NSIS_INSTALLED_ICON_NAME "${CMAKE_SOURCE_DIR}/assets/icon.ico")
+set(CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/assets/icon.ico")
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/assets/nsis ${CMAKE_MODULE_PATH})
+
+    include(CPack)
+    configure_file(
+    ${PROJECT_SOURCE_DIR}/assets/nsis/NSIS.definitions.nsh.in
+    ${CMAKE_CURRENT_BINARY_DIR}/assets/nsis/NSIS.definitions.nsh
+    )
