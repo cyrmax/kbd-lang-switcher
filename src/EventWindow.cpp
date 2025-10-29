@@ -1,5 +1,6 @@
 #include "EventWindow.hpp"
 
+#include "../assets/resources.h"
 #include "log-macro.hpp"
 #include "windows-keyboard-api.hpp"
 
@@ -12,8 +13,14 @@ EventWindow::EventWindow(KeyboardManager& keyboardManager) : m_keyboardManager(k
 
     on_message(WM_CREATE, [&](wl::params params) -> LRESULT {
         LOG_TRACE_CALLED();
+
+        HICON hIcon = LoadIconW(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDI_APPICON));
+        if (!hIcon) {
+            LOG_ERROR(L"Failed to load icon resource with ID: {}", IDI_APPICON);
+        }
+
         auto show_settings = [&]() { return; };
-        m_tray = std::make_unique<Tray::Tray>("My App", "C:\\path\\to\\your\\icon.ico");
+        m_tray = std::make_unique<Tray::Tray>("Keyboard-Language-Switcher", hIcon);
         m_tray->addEntry(Tray::Button{"Settings...", show_settings});
         m_tray->addEntry(Tray::Separator{});
         m_tray->addEntry(Tray::Button{"Quit", [&]() { PostMessage(hwnd(), WM_CLOSE, 0, 0); }});
