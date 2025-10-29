@@ -1,0 +1,6 @@
+[submodule "external/winlamb"]
+	path = external/winlamb
+	url = https://github.com/rodrigocfd/winlamb
+[submodule "external/traypp"]
+	path = external/traypp
+	url = https://github.com/Soundux/traypp

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25)
+cmake_minimum_required(VERSION 3.31)
 project("kbd-lang-switcher" VERSION 0.1)
 
 if(NOT WIN32)
@@ -28,12 +28,10 @@ endif()
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   SRAL_STATIC
-  wxMSVC_VERSION_ABI_COMPAT
   WIN32_LEAN_AND_MEAN
 )
 
 # Find dependencies
-find_package(wxWidgets CONFIG REQUIRED COMPONENTS core base)
 find_package(spdlog REQUIRED)
 
 # --- Dependencies with FetchContent ---
@@ -51,23 +49,24 @@ set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(SRAL)
 add_library(SRAL::SRAL_static ALIAS SRAL_static)
 
+# Git submodule dependencies
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/traypp EXCLUDE_FROM_ALL SYSTEM)
+
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src"
+  System "${CMAKE_CURRENT_SOURCE_DIR}/external"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
   SRAL::SRAL_static
   spdlog::spdlog
-  wx::core
-  wx::base
+  tray
 )
 
-target_precompile_headers(${PROJECT_NAME} PRIVATE
-  <windows.h>
-  <spdlog/spdlog.h>
-  <wx/wxprec.h>
-  <wx/app.h>
-)
+# target_precompile_headers(${PROJECT_NAME} PRIVATE
+# <windows.h>
+# <spdlog/spdlog.h>
+# )
 
 install(TARGETS ${PROJECT_NAME} DESTINATION bin CONFIGURATIONS release)
 
