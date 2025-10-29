@@ -1,11 +1,9 @@
 #include "loggerSetup.hpp"
 
 #include <algorithm>
-#include <cstdlib>
+#include <chrono>
 #include <iostream>
 #include <spdlog/async.h>
-#include <spdlog/cfg/argv.h>
-#include <spdlog/cfg/env.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
@@ -36,14 +34,15 @@ void InitializeLogging(bool isDebuggingEnabled) {
         } else {
             logger->set_level(spdlog::level::warn);
         }
+        logger->flush_on(spdlog::level::warn);
         spdlog::register_logger(logger);
         spdlog::set_default_logger(logger);
+        spdlog::flush_every(std::chrono::seconds(5));
         if (isDebugBuild) {
             spdlog::debug("Log level is set to trace because of debug build");
         }
         if (isDebuggingEnabled) {
             spdlog::debug("Log level is set to debug via command line parameter");
         }
-        std::atexit(spdlog::shutdown);
     } catch (spdlog::spdlog_ex& ex) { std::cerr << "Unable to initialize logger: " << ex.what() << '\n'; }
 }
