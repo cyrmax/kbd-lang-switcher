@@ -29,25 +29,23 @@ endif()
 target_compile_definitions(${PROJECT_NAME} PRIVATE
   SRAL_STATIC
   WIN32_LEAN_AND_MEAN
+  SPDLOG_WCHAR_TO_UTF8_SUPPORT
 )
-
-# Find dependencies
-find_package(spdlog REQUIRED)
 
 # --- Dependencies with FetchContent ---
-include(FetchContent)
-set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_dependencies)
+# include(FetchContent)
+# set(FETCHCONTENT_BASE_DIR ${CMAKE_BINARY_DIR}/_dependencies)
 
 # SRAL
-FetchContent_Declare(SRAL
-  GIT_REPOSITORY https://github.com/m1maker/SRAL.git
-  GIT_TAG "main"
-  GIT_SHALLOW ON
-  SYSTEM
-)
-set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(SRAL)
-add_library(SRAL::SRAL_static ALIAS SRAL_static)
+# FetchContent_Declare(SRAL
+# GIT_REPOSITORY https://github.com/m1maker/SRAL.git
+# GIT_TAG "main"
+# GIT_SHALLOW ON
+# SYSTEM
+# )
+# set(BUILD_SRAL_TEST OFF CACHE BOOL "" FORCE)
+# FetchContent_MakeAvailable(SRAL)
+# add_library(SRAL::SRAL_static ALIAS SRAL_static)
 
 # Git submodule dependencies
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/traypp EXCLUDE_FROM_ALL SYSTEM)
@@ -58,8 +56,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-  SRAL::SRAL_static
-  spdlog::spdlog
+  # SRAL::SRAL_static
   tray
 )
 
