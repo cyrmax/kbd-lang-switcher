@@ -11,5 +11,5 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     auto keyboardManager = std::make_unique<KeyboardManager>();
     EventWindow hiddenWindow(*keyboardManager);
 
-    return hiddenWindow.winmain_run(hInstance, nCmdShow);
+    return hiddenWindow.winmain_run(hInstance, SW_HIDE);
 }
