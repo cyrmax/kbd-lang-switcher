@@ -1,10 +1,12 @@
 #include "EventWindow.hpp"
 
 #include "../assets/resources.h"
+#include "SettingsDialog.hpp"
 #include "log-macro.hpp"
 #include "windows-keyboard-api.hpp"
 
-EventWindow::EventWindow(KeyboardManager& keyboardManager) : m_keyboardManager(keyboardManager) {
+EventWindow::EventWindow(KeyboardManager& keyboardManager, SettingsStorage& settingsStorage)
+    : m_keyboardManager(keyboardManager), m_settings(settingsStorage) {
     LOG_TRACE_CALLED();
     setup.wndClassEx.lpszClassName = L"KBD_LANG_SWITCHER_EVT_WND";
     setup.title = L"KBD_LANG_SWITCHER_EVT_WND";
@@ -19,7 +21,28 @@ EventWindow::EventWindow(KeyboardManager& keyboardManager) : m_keyboardManager(k
             LOG_ERROR(L"Failed to load icon resource with ID: {}", IDI_APPICON);
         }
 
-        auto show_settings = [&]() { return; };
+        m_settings.ensureLoaded();
+
+        auto show_settings = [&]() {
+            // The SettingsDialog works directly with our m_settings member.
+            SettingsDialog dlg(m_settings, m_keyboardManager);
+
+            // Show the modal dialog, centered on our (hidden) window.
+            if (dlg.show(this) == IDOK) {
+                // User clicked OK. The dialog has already saved settings to the
+                // m_settings object and the INI file. Now, we must apply them.
+                LOG_INFO(L"Settings dialog closed with OK. Applying new settings.");
+                _applySettings();
+            } else {
+                // User clicked Cancel or closed the dialog.
+                // We must reload the settings from the file to discard any
+                // temporary changes the dialog might have made to the object
+                // before the user cancelled.
+                LOG_INFO(L"Settings dialog was cancelled. Reverting changes.");
+                m_settings.load();
+            }
+        };
+
         m_tray = std::make_unique<Tray::Tray>("Keyboard-Language-Switcher", hIcon);
         m_tray->addEntry(Tray::Button{"Settings...", show_settings});
         m_tray->addEntry(Tray::Separator{});
@@ -74,4 +97,9 @@ void EventWindow::handleHotkey(unsigned long long hotkeyId) {
     if (it != m_hotkeyIDToHKLMap.end()) {
         m_keyboardManager.setKeyboardLayout(GetForegroundWindow(), it->second);
     }
+}
+
+void EventWindow::_applySettings() {
+    unregisterHotkeys();
+    registerHotkeys();
 }

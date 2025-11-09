@@ -1,4 +1,5 @@
 #include "EventWindow.hpp"
+#include "SettingsStorage.hpp"
 #include "log-macro.hpp"
 #include "loggerSetup.hpp"
 
@@ -10,7 +11,8 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     LOG_TRACE_CALLED();
 
     auto keyboardManager = std::make_unique<KeyboardManager>();
-    EventWindow hiddenWindow(*keyboardManager);
+    auto settingsStorage = std::make_unique<SettingsStorage>();
+    EventWindow hiddenWindow(*keyboardManager, *settingsStorage);
 
     int exitCode = hiddenWindow.winmain_run(hInstance, SW_HIDE);
 

@@ -1,4 +1,5 @@
 #pragma once
+#include "SettingsStorage.hpp"
 #include "windows-keyboard-api.hpp"
 
 #include <map>
@@ -9,15 +10,17 @@
 
 class EventWindow final : public wl::window_main {
   public:
-    explicit EventWindow(KeyboardManager&);
+    explicit EventWindow(KeyboardManager&, SettingsStorage&);
     ~EventWindow();
 
   private:
     KeyboardManager& m_keyboardManager;
+    SettingsStorage& m_settings;
     std::unique_ptr<Tray::Tray> m_tray;
     std::map<unsigned long long, HKL> m_hotkeyIDToHKLMap;
 
     void registerHotkeys();
     void unregisterHotkeys();
     void handleHotkey(unsigned long long hotkeyId);
+    void _applySettings();
 };

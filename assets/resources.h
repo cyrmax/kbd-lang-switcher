@@ -1,3 +1,8 @@
 #pragma once
 
 #define IDI_APPICON 42
+
+#define IDD_SETTINGS 1000
+#define IDC_LANGUAGES_GROUP 1001
+#define IDC_LANGUAGES_LIST 1002
+#define IDC_BEEP_CHECK 1003
