@@ -5,6 +5,7 @@
 #include <map>
 #include <memory>
 #include <shellapi.h>
+//
 #include <tray.hpp>
 #include <winlamb/window_main.h>
 

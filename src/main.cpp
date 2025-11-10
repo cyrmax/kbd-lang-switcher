@@ -13,7 +13,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
     auto keyboardManager = std::make_unique<KeyboardManager>();
     auto settingsStorage = std::make_unique<SettingsStorage>();
     EventWindow hiddenWindow(*keyboardManager, *settingsStorage);
-
     int exitCode = hiddenWindow.winmain_run(hInstance, SW_HIDE);
 
     LOG_INFO("Main window loop has finished. Shutting down");

@@ -32,11 +32,13 @@ SettingsDialog::SettingsDialog(SettingsStorage& settingsStorage, KeyboardManager
         _saveSettings();
         m_settings.save();
         EndDialog(hwnd(), IDOK);
+        return TRUE;
     });
 
     on_command(IDCANCEL, [this](wl::params params) -> INT_PTR {
         LOG_DEBUG("Cancel button event fired via on_command");
         EndDialog(hwnd(), IDCANCEL);
+        return TRUE;
     });
 }
 

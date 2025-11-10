@@ -5,6 +5,8 @@
 #include "log-macro.hpp"
 #include "windows-keyboard-api.hpp"
 
+#define WM_SHOWSETTINGS (WM_APP + 1)
+
 EventWindow::EventWindow(KeyboardManager& keyboardManager, SettingsStorage& settingsStorage)
     : m_keyboardManager(keyboardManager), m_settings(settingsStorage) {
     LOG_TRACE_CALLED();
@@ -23,30 +25,12 @@ EventWindow::EventWindow(KeyboardManager& keyboardManager, SettingsStorage& sett
 
         m_settings.ensureLoaded();
 
-        auto show_settings = [&]() {
-            // The SettingsDialog works directly with our m_settings member.
-            SettingsDialog dlg(m_settings, m_keyboardManager);
-
-            // Show the modal dialog, centered on our (hidden) window.
-            if (dlg.show(this) == IDOK) {
-                // User clicked OK. The dialog has already saved settings to the
-                // m_settings object and the INI file. Now, we must apply them.
-                LOG_INFO(L"Settings dialog closed with OK. Applying new settings.");
-                _applySettings();
-            } else {
-                // User clicked Cancel or closed the dialog.
-                // We must reload the settings from the file to discard any
-                // temporary changes the dialog might have made to the object
-                // before the user cancelled.
-                LOG_INFO(L"Settings dialog was cancelled. Reverting changes.");
-                m_settings.load();
-            }
-        };
+        auto show_settings = [&]() { PostMessage(hwnd(), WM_SHOWSETTINGS, 0, 0); };
 
         m_tray = std::make_unique<Tray::Tray>("Keyboard-Language-Switcher", hIcon);
         m_tray->addEntry(Tray::Button{"Settings...", show_settings});
         m_tray->addEntry(Tray::Separator{});
-        m_tray->addEntry(Tray::Button{"Quit", [&]() { PostMessage(hwnd(), WM_CLOSE, 0, 0); }});
+        m_tray->addEntry(Tray::Button{"Quit", [&]() { PostQuitMessage(0); }});
 
         registerHotkeys();
 
@@ -56,6 +40,33 @@ EventWindow::EventWindow(KeyboardManager& keyboardManager, SettingsStorage& sett
     on_message(WM_HOTKEY, [&](wl::params params) -> LRESULT {
         LOG_TRACE_CALLED();
         handleHotkey(params.wParam);
+        return 0;
+    });
+
+    on_message(WM_SHOWSETTINGS, [this](wl::params) -> LRESULT {
+        static bool isSettingsDialogShown = false;
+        if (isSettingsDialogShown) {
+            return 0;
+        }
+        isSettingsDialogShown = true;
+
+        SettingsDialog dlg(m_settings, m_keyboardManager);
+
+        // Show the modal dialog, centered on our (hidden) window.
+        if (dlg.show(this) == IDOK) {
+            // User clicked OK. The dialog has already saved settings to the
+            // m_settings object and the INI file. Now, we must apply them.
+            LOG_INFO(L"Settings dialog closed with OK. Applying new settings.");
+            _applySettings();
+        } else {
+            // User clicked Cancel or closed the dialog.
+            // We must reload the settings from the file to discard any
+            // temporary changes the dialog might have made to the object
+            // before the user cancelled.
+            LOG_INFO(L"Settings dialog was cancelled. Reverting changes.");
+            m_settings.load();
+        }
+        isSettingsDialogShown = false;
         return 0;
     });
 }
