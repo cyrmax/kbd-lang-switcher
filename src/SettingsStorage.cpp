@@ -2,34 +2,35 @@
 
 #include "log-macro.hpp"
 
-#include <winlamb/file.h>
-#include <winlamb/file_ini.h>
-#include <winlamb/path.h>
+#include <SimpleIni.h>
+#include <filesystem>
 #include <winlamb/syspath.h>
 
+namespace fs = std::filesystem;
+
 void SettingsStorage::load() {
+    LOG_TRACE_CALLED();
     const auto settingsPath = _getSettingsPath();
 
-    if (!wl::file::util::exists(settingsPath)) {
+    if (!fs::exists(settingsPath)) {
         _createDefaultFile();
         return;
     }
 
     try {
-        wl::file_ini ini;
-        ini.load_from_file(settingsPath);
+        CSimpleIniW ini;
+        ini.LoadFile(settingsPath.c_str());
 
-        if (const auto* generalSection = ini.sections.get_if_exists(L"General")) {
-            if (const auto* beepVal = generalSection->get_if_exists(L"BeepOnSwitch")) {
-                this->beepOnSwitch = (*beepVal == L"true");
-            }
-        }
+        const auto beepOnSwitchVal = ini.GetValue(L"General", L"BeepOnSwitch", L"true");
+        this->beepOnSwitch = (beepOnSwitchVal == L"true");
 
-        ignoredLanguages.clear();
-        if (const auto* ignoredLanguagesSection = ini.sections.get_if_exists(L"IgnoredLanguages")) {
-            ignoredLanguages.reserve(ignoredLanguagesSection->size());
-            for (const auto& entry : *ignoredLanguagesSection) {
-                ignoredLanguages.emplace_back(entry.key);
+        this->ignoredLanguages.clear();
+        auto numOfLanguages = ini.GetSectionSize(L"IgnoredLanguages");
+        if (numOfLanguages > 0) {
+            this->ignoredLanguages.reserve(numOfLanguages);
+            auto languages = ini.GetSection(L"IgnoredLanguages");
+            for (auto it = languages->begin(); it != languages->end(); ++it) {
+                this->ignoredLanguages.push_back(it->first.pItem);
             }
         }
     } catch (const std::exception& e) {
@@ -40,6 +41,7 @@ void SettingsStorage::load() {
 }
 
 void SettingsStorage::ensureLoaded() {
+    LOG_TRACE_CALLED();
     if (m_isLoaded) {
         return;
     }
@@ -47,30 +49,41 @@ void SettingsStorage::ensureLoaded() {
 }
 
 void SettingsStorage::save() const {
-    wl::file_ini ini;
+    try {
+        LOG_TRACE_CALLED();
+        CSimpleIniW ini;
 
-    ini.sections[L"General"][L"BeepOnSwitch"] = (beepOnSwitch ? L"true" : L"false");
+        ini.SetValue(L"General", L"BeepOnSwitch", this->beepOnSwitch ? L"true" : L"false");
 
-    auto& ignoredLanguagesSection = ini.sections[L"IgnoredLanguages"];
-    for (const auto& lang : ignoredLanguages) {
-        ignoredLanguagesSection[lang] = L"1";
-    }
+        for (const auto& lang : ignoredLanguages) {
+            ini.SetValue(L"IgnoredLanguages", lang.c_str(), L"1");
+        }
 
-    const auto settingsPath = _getSettingsPath();
-    const auto folderPath = wl::path::folder_from(settingsPath);
+        const auto settingsPath = _getSettingsPath();
+        const auto folderPath = fs::path(settingsPath).parent_path().wstring();
+        LOG_DEBUG(L"Settings folder path is {}", folderPath);
 
-    if (!wl::file::util::exists(folderPath)) {
-        wl::file::util::create_dir(folderPath);
-    }
+        if (!fs::exists(folderPath)) {
+            LOG_DEBUG(L"About to create settings folder");
+            fs::create_directories(folderPath);
+        }
 
-    ini.save_to_file(settingsPath);
+        LOG_DEBUG(L"Saving settings to ini file");
+        ini.SaveFile(settingsPath.c_str());
+    } catch (const std::exception& e) { LOG_ERROR("Failed to save settings: {}", e.what()); }
 }
 
 std::wstring SettingsStorage::_getSettingsPath() const {
-    return wl::syspath::app_data() + L"\\kbd-lang-switcher\\kbd-lang-switcher.ini";
+    LOG_TRACE_CALLED();
+    auto appDataPath = std::filesystem::path(wl::syspath::app_data());
+    LOG_DEBUG(L"App Data Path is {}", appDataPath.wstring());
+    auto fullPath = appDataPath / L"kbd-lang-switcher" / L"kbd-lang-switcher.ini";
+    LOG_DEBUG(L"The full path constructed {}", fullPath.wstring());
+    return fullPath.wstring();
 }
 
 void SettingsStorage::_createDefaultFile() {
+    LOG_TRACE_CALLED();
     beepOnSwitch = true;
     ignoredLanguages.clear();
     save();

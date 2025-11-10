@@ -50,9 +50,13 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 # Git submodule dependencies
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/external/traypp EXCLUDE_FROM_ALL SYSTEM)
 
+find_path(SIMPLEINI_INCLUDE_DIRS "ConvertUTF.c")
+
+
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_CURRENT_SOURCE_DIR}/src"
   System "${CMAKE_CURRENT_SOURCE_DIR}/external"
+  SYSTEM "${SIMPLEINI_INCLUDE_DIRS}"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
