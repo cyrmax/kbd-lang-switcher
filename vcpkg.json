@@ -1,0 +1,5 @@
+{
+  "name": "kbd-lang-switcher",
+  "version-string": "0.1.0",
+  "dependencies": ["simpleini"]
+}

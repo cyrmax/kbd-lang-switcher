@@ -1,7 +1,7 @@
 #include "EventWindow.hpp"
 #include "SettingsStorage.hpp"
 #include "log-macro.hpp"
-#include "loggerSetup.hpp"
+#include "logger-setup.hpp"
 
 #include <memory>
 

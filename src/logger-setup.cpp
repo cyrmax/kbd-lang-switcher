@@ -1,4 +1,4 @@
-#include "loggerSetup.hpp"
+#include "logger-setup.hpp"
 
 #include <algorithm>
 #include <chrono>

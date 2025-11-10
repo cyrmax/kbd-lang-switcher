@@ -14,11 +14,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|MSVC" AND CMAKE_SYSTEM_NAME STREQUAL "Wi
   set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>" CACHE STRING "MSVC Runtime Library" FORCE)
 endif()
 
-file(GLOB SOURCES "src/*.cpp")
-
 add_executable(${PROJECT_NAME}
   "${CMAKE_SOURCE_DIR}/assets/resources.rc"
-  ${SOURCES}
+  src/main.cpp
+  src/EventWindow.cpp
+  src/SettingsDialog.cpp
+  src/logger-setup.cpp
+  src/SettingsStorage.cpp
+  src/windows-keyboard-api.cpp
 )
 
 if(WIN32)
