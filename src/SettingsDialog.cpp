@@ -54,7 +54,7 @@ void SettingsDialog::_loadSettingsAndPopulateList() {
     } else {
         for (const auto& lang : m_settings.ignoredLanguages) {
             auto item = m_lvLanguages.items.add(lang);
-            item.set_select(true);
+            ListView_SetCheckState(m_lvLanguages.hwnd(), item.index, TRUE);
         }
         for (const auto& layout : layouts) {
             if (std::find(m_settings.ignoredLanguages.begin(), m_settings.ignoredLanguages.end(),
@@ -70,9 +70,10 @@ void SettingsDialog::_saveSettings() {
     m_settings.beepOnSwitch = m_chkBeep.is_checked();
 
     m_settings.ignoredLanguages.clear();
-    auto selectedItems = m_lvLanguages.items.get_selected();
-    m_settings.ignoredLanguages.reserve(selectedItems.size());
-    for (size_t i = 0; i < selectedItems.size(); ++i) {
-        m_settings.ignoredLanguages.push_back(selectedItems[i].get_text());
+    auto numOfItems = m_lvLanguages.items.count();
+    for (size_t i = 0; i < numOfItems; ++i) {
+        if (ListView_GetCheckState(m_lvLanguages.hwnd(), i) == TRUE) {
+            m_settings.ignoredLanguages.push_back(m_lvLanguages.items[i].get_text());
+        }
     }
 }
